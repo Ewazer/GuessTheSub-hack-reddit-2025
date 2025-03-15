@@ -27,5 +27,21 @@ body{
   cursor: pointer;
   font-size: 15px;
   font-weight: bold;
+}
 
+section{
+  padding: 2rem 4rem;
+  border-radius: 10px;
+  border: 2px solid #232b2d;
+}
+
+.dailly-challenge-button:hover{
+  background-color:#eb001f;
+}
+
+p {
+  margin-top: 10px;
+}
+h1 {
+  margin: 0px;
 }
