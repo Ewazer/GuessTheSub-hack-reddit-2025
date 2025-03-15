@@ -1,30 +1,31 @@
 # hack-reddit-2025
 
-##Quickstart
+## Quickstart
 
-Requirement:
-- node.js
+### Requirement:
+- Node.js
 
-Install devvit
-```
+### Install Devvit
+```sh
 npm install -g devvit
 ```
 
-Log in to Reddit
-```
+### Log in to Reddit
+```sh
 devvit login
 ```
 
-Create a new project
-```
+### Create a new project
+```sh
 devvit new --template blocks-post
 cd my-project
 ```
 
-Deploy and test 
-```
+### Deploy and test
+```sh
 devvit deploy
 devvit upload
 devvit playtest r/testdev_ewazer
 ```
-Note: the test subreddit is: r/testdev_ewazer
+
+🔹 **Note**: The test subreddit is **r/testdev_ewazer**.
