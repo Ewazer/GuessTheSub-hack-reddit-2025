@@ -5,25 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GuessTheSubreddit</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   </head>
   <body class="body_home">
     <div id="popup-win" class="popup-win-invisble">
       <div class="popup-content">
         <h2>Congratulations!</h2>
         <p>You have guessed the subreddit correctly!</p>
-        <button class="button-popup" onclick="buttonPopupclick()">Reveal All</button>
+        <div class="button-popup-content">
+          <button class="button-popup" onclick="buttonPopupclick()">Reveal All</button>
+        </div>
+      </div>
+    </div>
+    <div id="popup-hint" class="popup-win-invisble">
+      <div class="popup-content">
+        <h2>Hints</h2>
+        <p>Choose a hint to help you guess:</p>
+        <div class="hint-buttons">
+          <div class="hint-button-container hint-button-community">
+            <div class="hint-button-flip">
+              <button class="button-hint" onclick="showHint('community')">Community Size</button>
+              <div class="hint-back"></div>
+            </div>
+          </div>
+          
+          <div class="hint-button-container hint-button-letters">
+            <div class="hint-button-flip">
+              <button class="button-hint" onclick="showHint('letters')">First/Last Letters</button>
+              <div class="hint-back"></div>
+            </div>
+          </div>
+          
+          <div class="hint-button-container hint-button-category">
+            <div class="hint-button-flip">
+              <button class="button-hint" onclick="showHint('category')">Category</button>
+              <div class="hint-back"></div>
+            </div>
+          </div>
+        </div>
+        <div class="button-popup-content">
+          <button class="button-popup2" onclick="closeHintPopup()">Close</button>
+        </div>
       </div>
     </div>
     <section class="top-page">
-      <h1>GuessTheSubreddit</h1>
+      <h1 class="title">GuessTheSubreddit</h1>
     </section>
     <section class="midd-page">
       <div class="input-and-top">
         <div class="find-content">
           <div class="input-box">
             <svg rpl="" class="loupe-search" aria-hidden="true" fill="currentColor" height="16" icon-name="search-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <!--?lit$5864447543$--><!--?lit$5864447543$--><path d="M18.916 17.717 15.2 14.042a8.043 8.043 0 1 0-1.053 1.069l3.709 3.672a.75.75 0 0 0 1.056-1.066h.004ZM2.5 9a6.5 6.5 0 1 1 11.229 4.446.695.695 0 0 0-.116.077.752.752 0 0 0-.086.132A6.492 6.492 0 0 1 2.5 9Z"></path><!--?--> </svg>
-            <input type="text" id="subreddit" placeholder="Enter word"> 
+            <input class="input-area" type="text" id="subreddit" placeholder="Enter word"> 
           </div>
+          <button class="button-indice" onclick="showHintPopup()">🆘 Indice</button>
         </div>
       </div>
       <div id="post-content"></div>
