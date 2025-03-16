@@ -370,6 +370,8 @@ button.button-popup2 {
   padding: 5px 10px;
   border-radius: 5px;
   transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+  color: #454545;
+  font-weight: 700;
 }
 
 button.button-popup2:hover {
