@@ -1,13 +1,29 @@
 body{
   font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  display: flex;
   height: 100vh;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
   color:white;
   background-color: #0b1416;
   margin: 0px;
+}
+
+.top-page{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 4rem;
+}
+
+.midd-page{
+  padding: 2rem;
+}
+
+input{
+  padding: 10px;
+  border-radius: 5px;
+  border: 0px;
+  margin-bottom: 20px;
+  width: 250px;
 }
 
 .dailly-challenge-button-box{
@@ -29,12 +45,6 @@ body{
   font-weight: bold;
 }
 
-section{
-  padding: 2rem 4rem;
-  border-radius: 10px;
-  border: 2px solid #232b2d;
-}
-
 .dailly-challenge-button:hover{
   background-color:#eb001f;
 }
@@ -44,4 +54,36 @@ p {
 }
 h1 {
   margin: 0px;
+}
+
+.masked-word {
+  background-color: black;
+  padding: 0 2px;
+  border-radius: 3px;
+  margin: 0 1px;
+  color: white; 
+  user-select: none;
+  transition: all 0.5s ease-out;
+}
+
+.masked-word.revealed {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  animation: fadeReveal 0.8s ease-out forwards;
+}
+
+@keyframes fadeReveal {
+  0% {
+    background-color: black;
+    text-shadow: 0 0 8px white;
+  }
+  50% {
+    background-color: rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    background-color: transparent;
+    text-shadow: none;
+  }
 }
