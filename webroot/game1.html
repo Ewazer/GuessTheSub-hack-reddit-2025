@@ -7,11 +7,25 @@
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body class="body_home">
+    <div id="popup-win" class="popup-win-invisble">
+      <div class="popup-content">
+        <h2>Congratulations!</h2>
+        <p>You have guessed the subreddit correctly!</p>
+        <button class="button-popup" onclick="buttonPopupclick()">Reveal All</button>
+      </div>
+    </div>
     <section class="top-page">
       <h1>GuessTheSubreddit</h1>
     </section>
     <section class="midd-page">
-      <input type="text" id="subreddit" placeholder="Enter word"> 
+      <div class="input-and-top">
+        <div class="find-content">
+          <div class="input-box">
+            <svg rpl="" class="loupe-search" aria-hidden="true" fill="currentColor" height="16" icon-name="search-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <!--?lit$5864447543$--><!--?lit$5864447543$--><path d="M18.916 17.717 15.2 14.042a8.043 8.043 0 1 0-1.053 1.069l3.709 3.672a.75.75 0 0 0 1.056-1.066h.004ZM2.5 9a6.5 6.5 0 1 1 11.229 4.446.695.695 0 0 0-.116.077.752.752 0 0 0-.086.132A6.492 6.492 0 0 1 2.5 9Z"></path><!--?--> </svg>
+            <input type="text" id="subreddit" placeholder="Enter word"> 
+          </div>
+        </div>
+      </div>
       <div id="post-content"></div>
     </section>
     
