@@ -4,7 +4,8 @@
     "title": "I built a chrome extension that got 223 users in 6 days",
     "content": "This is my second side project. With my first startup, I got sick of wasting hours on repetitive tasks like adding LinkedIn connections one by one, reviewing job applications, buying domains, setting up business emails, and other little tasks that eat up major time.\n\nSo I built an AI agent that could handle all this crap for me, and I am looking for a genuine feedback from you.\n\nI wanted to keep it simple so it doesn't require any coding or environment setup like other AI agents.\n\nSo far, the response has been like - 223 users in less than a week. I gave everyone 1000 free credits thinking it would last them a while. Almost everyone burned through them. Some SEO folks have been running tasks for 2+ hours straight.\n\nCurrent automations include bulk LinkedIn connections, scanning job applications for recruiters, bulk domain buying on GoDaddy, setting up business emails, and a bunch of stuff for email marketing, SEO, and recruiters.\n\nI've also added a way for creators to build and monetize their own workflows, though that feature isn't that intuitive to use as of now.\n\nI'd love for you to try it out and tell me what sucks, what's good, and what tasks I should automate next. Brutal honesty appreciated - I'm building this to solve real problems.\n\nYou can check it out here: https://100x.bot/ (Only works on chrome)",
     "timestamp": "2025-03-15T14:00:00Z",
-    "upvotes": 312,
+    "upvotes": 7,
+    "comments": 1,
     "potential_subreddits": [
       "Entrepreneur",
       "startup",
@@ -16,5 +17,7 @@
       "growthhacking",
       "SEO",
       "sidehustle"
-    ]
+    ],
+      "category":"Project",
+      "community_size": 312000
   }
