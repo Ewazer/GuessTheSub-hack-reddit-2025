@@ -6,25 +6,69 @@ body{
   margin: 0px;
 }
 
-.top-page{
+h2,p{
+  margin: 0px;
+}
+
+.top-page {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 4rem;
+  padding-bottom: 0px;
 }
 
 .midd-page{
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-box{
+  display: flex;
+  justify-content: center;
+  background-color: #333d42;
+  border-radius: 800px;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 240px;
 }
 
 input{
-  padding: 10px;
-  border-radius: 5px;
+  background-color: #333d42;
   border: 0px;
-  margin-bottom: 20px;
-  width: 250px;
+  padding-left: 10px;
+  width: 200px;
+  color:white;
 }
+
+
+input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.loupe-search{
+  margin-left: 5px;
+}
+
+.find-content{
+  width: 100%;
+  max-width: 732px;
+  display: flex;
+}
+
+.input-and-top{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+
 
 .dailly-challenge-button-box{
   display: flex;
@@ -71,6 +115,7 @@ h1 {
   padding: 0;
   margin: 0;
   animation: fadeReveal 0.8s ease-out forwards;
+  color: inherit;
 }
 
 @keyframes fadeReveal {
@@ -86,4 +131,71 @@ h1 {
     background-color: transparent;
     text-shadow: none;
   }
+}
+
+.p-post-header {
+  margin: 0;
+  color: #b8c5c9;
+  font-size: .75rem;
+  line-height: 1rem;
+}
+
+.subreddit-name {
+  font-weight: 700;
+}
+
+.ico-subreddit {
+  width: 32px;
+  height: 32px;
+  margin-right: 7px;
+}
+
+.post-header-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+
+.post-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
+.post-content{
+  color: #b8c5c9 !important;
+  font-size: .875rem;
+  line-height: 1.25rem;
+}
+
+.post-link {
+  color: #cf5fff;
+  text-decoration: underline;
+}
+
+.post-link:hover {
+  text-decoration: none;
+}
+
+.post-content{
+  max-width: 732px;
+}
+
+#popup-win{
+  position: fixed;  
+  top: 50%;         
+  left: 50%;      
+  transform: translate(-50%, -50%); 
+  border-radius: 7px;
+  z-index: 9999;    
+  background: #ff4500; 
+  padding: 20px;
+}
+
+.popup-win-visible{
+  display: block;
+}
+
+.popup-win-invisble{
+  display: none;
 }
