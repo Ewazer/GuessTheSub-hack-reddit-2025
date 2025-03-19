@@ -1,7 +1,12 @@
 window.onload = function () {
     loadPost();
+    loadSemanticDictionary();
     addEventListeners();
 };
+
+let revealedWords = new Map();
+let wordSimilarities = new Map();
+let semanticDictionary = null;
 
 function addEventListeners() {
     const hintButton = document.querySelector('.button-indice');
@@ -49,8 +54,54 @@ function loadPost() {
         .then(data => {
             currentPost = data;
             displayPost(data);
+            if (data.all_vector) {
+                try {
+                    currentPost.vectorData = JSON.parse(data.all_vector);
+                } catch (e) {
+                    const vectorString = data.all_vector.replace(/^\[|\]$/g, '').split(',');
+                    currentPost.vectorData = vectorString.map(num => parseFloat(num));
+                }
+            }
         })
         .catch(error => console.error("Error loading JSON:", error));
+}
+
+function loadSemanticDictionary() {
+    fetch("dict.json")
+        .then(response => response.json())
+        .then(data => {
+            semanticDictionary = data;
+            createReverseIndex();
+        })
+        .catch(error => console.error("Erreur de chargement du dictionnaire:", error));
+}
+
+let reverseIndex = {};
+
+function createReverseIndex() {
+    reverseIndex = {};
+    
+    for (const [key, similarWords] of Object.entries(semanticDictionary)) {
+        if (!Array.isArray(similarWords)) {
+            continue;
+        }
+        
+        for (const entry of similarWords) {
+            if (Array.isArray(entry) && entry.length >= 2) {
+                const similarWord = entry[0].toLowerCase();
+                const similarity = entry[1];
+                
+                if (!reverseIndex[similarWord]) {
+                    reverseIndex[similarWord] = [];
+                }
+                
+                reverseIndex[similarWord].push({
+                    word: key,
+                    similarity: similarity
+                });
+            }
+        }
+    }
 }
 
 function displayPost(post) {
@@ -82,12 +133,12 @@ function displayPost(post) {
         </div>   
         <div class="post-footer-container">
             <div class="post-upvotes">
-                <svg rpl="" style="padding:8px" fill="currentColor" height="16" icon-name="upvote-outline" style="padding:16px" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <!--?lit$842653974$--><!--?lit$842653974$--><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Zm0-17.193L2.685 9.071a.251.251 0 0 0 .177.429H7.5v5.316A2.63 2.63 0 0 0 9.864 17.5a2.441 2.441 0 0 0 1.856-.682A2.478 2.478 0 0 0 12.5 15V9.5h4.639a.25.25 0 0 0 .176-.429L10 1.807Z"></path><!--?--> </svg>
+                <svg rpl="" style="padding:8px" fill="currentColor" height="16" icon-name="upvote-outline" style="padding:16px" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Zm0-17.193L2.685 9.071a.251.251 0 0 0 .177.429H7.5v5.316A2.63 2.63 0 0 0 9.864 17.5a2.441 2.441 0 0 0 1.856-.682A2.478 2.478 0 0 0 12.5 15V9.5h4.639a.25.25 0 0 0 .176-.429L10 1.807Z"></path> </svg>
                 ${post.upvotes}
-                <svg rpl="" style="padding:8px" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <!--?lit$842653974$--><!--?lit$842653974$--><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path><!--?--> </svg>
+                <svg rpl="" style="padding:8px" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path> </svg>
             </div>
             <div class="post-comments">
-                <svg rpl="" style="padding:8px; padding-left:14px " aria-hidden="true" class="icon-comment" fill="currentColor" height="16" icon-name="comment-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <!--?lit$842653974$--><!--?lit$842653974$--><path d="M10 19H1.871a.886.886 0 0 1-.798-.52.886.886 0 0 1 .158-.941L3.1 15.771A9 9 0 1 1 10 19Zm-6.549-1.5H10a7.5 7.5 0 1 0-5.323-2.219l.54.545L3.451 17.5Z"></path><!--?--> </svg>
+                <svg rpl="" style="padding:8px; padding-left:14px " aria-hidden="true" class="icon-comment" fill="currentColor" height="16" icon-name="comment-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"> <path d="M10 19H1.871a.886.886 0 0 1-.798-.52.886.886 0 0 1 .158-.941L3.1 15.771A9 9 0 1 1 10 19Zm-6.549-1.5H10a7.5 7.5 0 1 0-5.323-2.219l.54.545L3.451 17.5Z"></path> </svg>
                 ${post.comments}
             </div>
         </div>
@@ -100,7 +151,6 @@ function displayPost(post) {
             if (word) {
                 const subredditsList = post.potential_subreddits.map(sub => sub.toLowerCase());
                 
-                console.log(post.subreddit.toLowerCase());
                 if (post.subreddit.toLowerCase() === word || 
                     (word.startsWith("r/") && post.subreddit.toLowerCase() === word.substring(2))) {
                     revealMatchingWords(word);
@@ -117,10 +167,19 @@ function displayPost(post) {
                     return;
                 }
                 
-                const found = revealMatchingWords(word);
+                const exactFound = revealMatchingWords(word);
+                
+                if (!exactFound && semanticDictionary) {
+                    const semanticFound = revealSemanticMatches(word);
+                    if (semanticFound) {
+                        this.value = "";
+                        return;
+                    }
+                }
+                
                 this.value = "";
                 
-                if (!found) {
+                if (!exactFound) {
                     const inputBox = document.querySelector(".input-box");
                     inputBox.classList.add("input-box-error");
                     const inputBox2 = document.querySelector(".input-area");
@@ -140,7 +199,6 @@ function displayPost(post) {
         document.body.appendChild(overlay);
         
         overlay.addEventListener('click', function() {
-            // Check which popup is visible and close it
             const popupWin = document.getElementById('popup-win');
             const popupHint = document.getElementById('popup-hint');
             
@@ -186,7 +244,6 @@ function maskText(text) {
             const maskedChars = part.split('').map(() => '_').join('');
             
             return `<span class="masked-word" data-word="${part.toLowerCase()}" data-original="${part}">${maskedChars}</span>`;
-            // return `${part}`;
         }).join("");
     
     return result;
@@ -199,20 +256,211 @@ function revealMatchingWords(inputWord) {
     maskedWords.forEach(wordElement => {
         const word = wordElement.getAttribute("data-word").toLowerCase();
         if (word === inputWord.toLowerCase()) {
-            wordElement.classList.add("revealing");
             const originalText = wordElement.getAttribute("data-original");
             
-            setTimeout(() => {
-                wordElement.textContent = originalText;
-                wordElement.classList.remove("revealing");
-                wordElement.classList.add("revealed");
-            }, 50);
+            const existingHint = wordElement.querySelector('.semantic-hint');
+            if (existingHint) {
+                wordElement.removeChild(existingHint);
+            }
+            
+            wordElement.classList.remove('expanded-mask');
+            
+            wordElement.textContent = originalText;
+            wordElement.classList.add("revealed");
+            
+            revealedWords.set(word, originalText);
             
             found = true;
         }
     });
     
+    if (found) {
+        updateSemanticHints();
+    }
+    
     return found;
+}
+
+function calculateSimilarity(word1, word2) {
+    if (semanticDictionary) {
+        if (semanticDictionary[word1]) {
+            const relatedEntry = semanticDictionary[word1].find(entry => 
+                entry && entry.length >= 2 && entry[0].toLowerCase() === word2.toLowerCase());
+            
+            if (relatedEntry) {
+                return relatedEntry[1];
+            }
+        }
+        
+        if (semanticDictionary[word2]) {
+            const relatedEntry = semanticDictionary[word2].find(entry => 
+                entry && entry.length >= 2 && entry[0].toLowerCase() === word1.toLowerCase());
+            
+            if (relatedEntry) {
+                return relatedEntry[1];
+            }
+        }
+    }
+    
+    if (word1.length > 2 && word2.length > 2) {
+        if (word1.substring(0, 3) === word2.substring(0, 3)) {
+            return 0.8;
+        }
+        
+        if (word1.length > 4 && word2.length > 4 && 
+            word1.substring(word1.length - 3) === word2.substring(word2.length - 3)) {
+            return 0.7;
+        }
+        
+        if (word1.includes(word2) || word2.includes(word1)) {
+            return 0.6;
+        }
+    }
+    
+    return 0;
+}
+
+function updateSemanticHints() {
+    if (revealedWords.size === 0) return;
+    
+    const maskedWords = document.querySelectorAll(".masked-word:not(.revealed)");
+    
+    maskedWords.forEach(wordElement => {
+        const word = wordElement.getAttribute("data-word").toLowerCase();
+        let bestMatch = null;
+        let highestSimilarity = 0.5;
+        
+        revealedWords.forEach((originalText, revealedWord) => {
+            const similarity = calculateSimilarity(word, revealedWord);
+            if (similarity > highestSimilarity) {
+                highestSimilarity = similarity;
+                bestMatch = originalText;
+            }
+        });
+        
+        if (bestMatch) {
+            const existingHint = wordElement.querySelector('.semantic-hint');
+            if (existingHint) {
+                wordElement.removeChild(existingHint);
+            }
+            
+            adjustMaskSize(wordElement, bestMatch);
+            
+            const hintElement = document.createElement('span');
+            hintElement.className = 'semantic-hint';
+            hintElement.textContent = bestMatch;
+            wordElement.appendChild(hintElement);
+            
+            wordSimilarities.set(wordElement, bestMatch);
+        }
+    });
+}
+
+function getSemanticRelations(word) {
+    if (!semanticDictionary) return { direct: [], reverse: [] };
+    
+    word = word.toLowerCase();
+    const relations = {
+        direct: [],
+        reverse: []  
+    };
+    
+    if (semanticDictionary[word] && Array.isArray(semanticDictionary[word])) {
+        relations.direct = semanticDictionary[word].filter(entry => 
+            Array.isArray(entry) && entry.length >= 2
+        );
+    }
+    
+    for (const [key, similarWords] of Object.entries(semanticDictionary)) {
+        if (!Array.isArray(similarWords)) continue;
+        
+        for (const entry of similarWords) {
+            if (Array.isArray(entry) && entry.length >= 2 && entry[0].toLowerCase() === word) {
+                relations.reverse.push({
+                    word: key,
+                    similarity: entry[1]
+                });
+                break; 
+            }
+        }
+    }
+    
+    return relations;
+}
+
+function revealSemanticMatches(inputWord) {
+    inputWord = inputWord.toLowerCase();
+    let found = false;
+    const maskedWords = document.querySelectorAll(".masked-word:not(.revealed)");
+    
+    Object.keys(semanticDictionary).forEach(key => {
+        if (found) return;
+        
+        const entryList = semanticDictionary[key];
+        if (!Array.isArray(entryList)) return;
+        
+        for (let i = 0; i < entryList.length; i++) {
+            const entry = entryList[i];
+            
+            if (Array.isArray(entry) && entry.length >= 1) {
+                const similarWord = String(entry[0]).toLowerCase().trim();
+                
+                if (similarWord === inputWord || 
+                    (inputWord.length <= 4 && similarWord.includes(inputWord))) {
+                    
+                    const similarityScore = entry.length >= 2 ? entry[1] : 0.5;
+                    
+                    maskedWords.forEach(element => {
+                        const maskedWord = element.getAttribute("data-word").toLowerCase();
+                        if (maskedWord === key.toLowerCase()) {
+                            applySemanticHint(element, inputWord);
+                            found = true;
+                        }
+                    });
+                    
+                    if (found) break;
+                }
+            }
+        }
+    });
+    
+    if (found) {
+        updateSemanticHints();
+    }
+    
+    return found;
+}
+
+function applySemanticHint(element, hintWord) {
+    const originalWord = element.getAttribute("data-original");
+    const maskedWord = element.getAttribute("data-word");
+    
+    const existingHint = element.querySelector('.semantic-hint');
+    if (existingHint) {
+        element.removeChild(existingHint);
+    }
+    
+    const hintElement = document.createElement('span');
+    hintElement.className = 'semantic-hint';
+    hintElement.textContent = hintWord;
+    
+    adjustMaskSize(element, hintWord);
+    
+    element.appendChild(hintElement);
+    
+    wordSimilarities.set(element, hintWord);
+}
+
+function adjustMaskSize(element, hintWord) {
+    const currentMask = element.textContent;
+    const originalWord = element.getAttribute("data-word");
+    
+    if (hintWord.length > currentMask.length -2) {
+        const extraChars = hintWord.length - currentMask.length +2;
+        
+        element.textContent = currentMask + '_'.repeat(extraChars);
+        element.classList.add('expanded-mask');
+    }
 }
 
 function buttonPopupclick() {
@@ -295,6 +543,13 @@ function visiblePost() {
       wordElement.textContent = originalText;
       wordElement.classList.add("revealed");
     });
+    
+    document.querySelectorAll('.semantic-hint').forEach(hint => {
+        hint.remove();
+    });
+    
+    revealedWords.clear();
+    wordSimilarities.clear();
 }
 
 function showHintPopup() {
@@ -329,7 +584,7 @@ function showHint(hintType) {
     
     const hintButtonContainer = document.querySelector(`.hint-button-${hintType}`);
     const flipCard = hintButtonContainer.querySelector('.hint-button-flip');
-    const hintBack = hintButtonContainer.querySelector('.hint-back');
+    const hintBack = flipCard.querySelector('.hint-back');
     
     let hintText = '';
     switch(hintType) {
@@ -338,7 +593,7 @@ function showHint(hintType) {
             break;
         case 'letters':
             const subreddit = currentPost.subreddit;
-            hintText = `r/${subreddit[0]}${subreddit.slice(1, -1).replace(/./g, '_')}${subreddit[subreddit.length-1]}`;
+            hintText = `r/${subreddit[0]}${subreddit.slice(1, -1).replace(/./g, '__')}${subreddit[subreddit.length-1]}`;
             break;
         case 'category':
             hintText = `Category: ${currentPost.category}`;
