@@ -155,7 +155,7 @@ function displayPost(post) {
                     (word.startsWith("r/") && post.subreddit.toLowerCase() === word.substring(2))) {
                     revealMatchingWords(word);
                     this.value = "";
-                    showPopup();
+                    showPopup(true,post);
                     return;
                 }
     
@@ -163,7 +163,7 @@ function displayPost(post) {
                     (word.startsWith("r/") && subredditsList.includes(word.substring(2)))) {
                     revealMatchingWords(word);
                     this.value = "";
-                    showPopup();
+                    showPopup(false,post);
                     return;
                 }
                 
@@ -484,9 +484,19 @@ function closePopup() {
     }, 300);
 }
 
-function showPopup() {
+function showPopup(isExactMatch,post) {
     const popupElement = document.getElementById('popup-win');
     const overlay = document.querySelector('.overlay');
+    const popupTitle = popupElement.querySelector('h2');
+    const popupText = popupElement.querySelector('p');
+    
+    if (isExactMatch) {
+        popupTitle.textContent = "Congratulations!";
+        popupText.textContent = "You have guessed the subreddit correctly!";
+    } else {
+        popupTitle.textContent = "Good job!";
+        popupText.textContent = `You found one of the related subreddits! The answer was: r/${post.subreddit}`;
+    }
     
     popupElement.classList.remove('popup-win-invisble');
     popupElement.classList.add('popup-win-visible');
