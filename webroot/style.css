@@ -54,8 +54,9 @@ input:focus {
   border: none;
 }
 
-.loupe-search{
+.loupe-search {
   margin-left: 5px;
+  margin-top: 2px;
 }
 
 .find-content{
@@ -129,6 +130,8 @@ h1 {
   color: white; 
   user-select: none;
   transition: all 0.5s ease-out;
+  position: relative;
+  display: inline-block;
 }
 
 .masked-word.revealed {
@@ -432,4 +435,24 @@ button.button-popup2:hover {
   color: rgb(216, 216, 216); 
   opacity: 1; 
   font-weight: 700;
+}
+
+.semantic-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  color: #ff8717;
+  text-align: center;
+  font-size: 0.9em;
+  pointer-events: none;
+  opacity: 0.9;
+  font-weight: 500;
+  z-index: 5;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.9; }
 }
