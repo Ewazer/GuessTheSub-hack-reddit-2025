@@ -10,15 +10,22 @@ h2,h1,p{
   margin: 0px;
 }
 
-.title{
+.title {
   font-size: 1.4rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.logo_GuessTheSubreddit {
+  margin-right: 10px;
 }
 
 .top-page {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
   align-items: center;
   padding: 1rem 4rem;
   border-bottom: 1px solid #1a282d;
