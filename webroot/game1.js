@@ -2,11 +2,194 @@ window.onload = function () {
     loadPost();
     loadSemanticDictionary();
     addEventListeners();
+    loadGameState();
+    initializeAutoSave();
 };
 
 let revealedWords = new Map();
 let wordSimilarities = new Map();
 let semanticDictionary = null;
+let currentPost = null;
+let usedHints = new Set();
+let userId = null;
+let gameId = null;
+
+function getUserId() {
+    const storedUserId = localStorage.getItem('gts_user_id');
+    if (storedUserId) {
+        return storedUserId;
+    }
+    
+    const newUserId = 'user_' + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('gts_user_id', newUserId);
+    return newUserId;
+}
+
+function saveGameState() {
+    showSavingIndicator();
+    
+    const revealedWordsArray = Array.from(revealedWords.entries());
+    const wordSimilaritiesArray = [];
+    
+    wordSimilarities.forEach((value, key) => {
+        if (key instanceof Element) {
+            const word = key.getAttribute('data-word');
+            if (word) {
+                wordSimilaritiesArray.push([word, value]);
+            }
+        } else if (typeof key === 'string') {
+            wordSimilaritiesArray.push([key, value]);
+        }
+    });
+    
+    const state = {
+        revealedWords: revealedWordsArray,
+        wordSimilarities: wordSimilaritiesArray,
+        usedHints: Array.from(usedHints)
+    };
+    
+    try {
+        const localStorageKey = `gts_game_${gameId}_${userId}`;
+        localStorage.setItem(localStorageKey, JSON.stringify(state));
+        console.log("Game state saved to localStorage");
+    } catch (e) {
+        console.error("Failed to save to localStorage:", e);
+    }
+    
+    if (window.devvitAPI) {
+        window.devvitAPI.sendMessage({
+            type: 'saveGameState',
+            userId,
+            gameId,
+            state
+        }).then(() => {
+            hideSavingIndicator(true);
+        }).catch(error => {
+            console.error("Failed to save game state to server:", error);
+            hideSavingIndicator(true);
+        });
+    } else {
+        hideSavingIndicator(true);
+    }
+}
+
+function showSavingIndicator() {
+    const existingIndicator = document.getElementById('save-indicator');
+    if (!existingIndicator) {
+        const indicator = document.createElement('div');
+        indicator.id = 'save-indicator';
+        indicator.innerText = 'Saving...';
+        indicator.style.position = 'fixed';
+        indicator.style.bottom = '10px';
+        indicator.style.right = '10px';
+        indicator.style.padding = '5px 10px';
+        indicator.style.backgroundColor = '#0b1416';
+        indicator.style.color = 'white';
+        indicator.style.borderRadius = '5px';
+        indicator.style.fontSize = '12px';
+        indicator.style.opacity = '0.8';
+        document.body.appendChild(indicator);
+    }
+}
+
+function hideSavingIndicator(success) {
+    const indicator = document.getElementById('save-indicator');
+    if (indicator) {
+        indicator.innerText = success ? 'Saved!' : 'Save failed';
+        indicator.style.backgroundColor = success ? '#0b5e36' : '#bc0117';
+        setTimeout(() => {
+            indicator.remove();
+        }, 1500);
+    }
+}
+
+async function loadGameState() {
+    userId = getUserId();
+    gameId = currentPost ? currentPost.id || 'daily_challenge' : 'daily_challenge';
+        
+    const localStorageKey = `gts_game_${gameId}_${userId}`;
+    let localState = null;
+    
+    try {
+        const savedData = localStorage.getItem(localStorageKey);
+        if (savedData) {
+            localState = JSON.parse(savedData);
+        }
+    } catch (e) {
+        console.error("Error loading from localStorage:", e);
+    }
+    
+    let serverState = null;
+    if (window.devvitAPI) {
+        try {
+            const response = await window.devvitAPI.sendMessage({
+                type: 'loadGameState',
+                userId,
+                gameId
+            });
+            
+            if (response && response.state) {
+                serverState = response.state;
+            }
+        } catch (error) {
+            console.error("Failed to load game state from server:", error);
+        }
+    }
+    
+    const finalState = serverState || localState;
+    
+    if (finalState) {
+        
+        if (finalState.revealedWords) {
+            revealedWords = new Map(finalState.revealedWords);
+        }
+        
+        if (finalState.wordSimilarities) {
+            finalState.wordSimilarities.forEach(([word, hint]) => {
+                wordSimilarities.set(word, hint);
+            });
+        }
+        
+        if (finalState.usedHints) {
+            usedHints = new Set(finalState.usedHints);
+        }
+        
+        setTimeout(() => {
+            applyGameStateToDom();
+        }, 500);
+    } else {
+    }
+}
+
+function applyGameStateToDom() {
+    revealedWords.forEach((value, key) => {
+        const elements = document.querySelectorAll(`.masked-word[data-word="${key}"]`);
+        if (elements.length > 0) {
+            elements.forEach(element => {
+                element.textContent = value;
+                element.classList.add("revealed");
+            });
+        } else {
+            console.warn(`Element with word "${key}" not found in DOM`);
+        }
+    });
+    
+    if (wordSimilarities instanceof Map) {
+        wordSimilarities.forEach((hint, word) => {
+            if (typeof word === 'string') {
+                const elements = document.querySelectorAll(`.masked-word[data-word="${word}"]:not(.revealed)`);
+                elements.forEach(element => {
+                    applySemanticHint(element, hint);
+                });
+            }
+        });
+    }
+    
+    usedHints.forEach(hintType => {
+        showHint(hintType, false);
+    });
+    
+}
 
 function addEventListeners() {
     const hintButton = document.querySelector('.button-indice');
@@ -46,8 +229,6 @@ function addEventListeners() {
     }
 }
 
-let currentPost = null;
-
 function loadPost() {
     fetch("post.json")
         .then(response => response.json())
@@ -62,6 +243,8 @@ function loadPost() {
                     currentPost.vectorData = vectorString.map(num => parseFloat(num));
                 }
             }
+            gameId = currentPost.id || 'daily_challenge';
+            loadGameState(); 
         })
         .catch(error => console.error("Error loading JSON:", error));
 }
@@ -276,6 +459,7 @@ function revealMatchingWords(inputWord) {
     
     if (found) {
         updateSemanticHints();
+        saveGameState(); 
     }
     
     return found;
@@ -449,6 +633,7 @@ function applySemanticHint(element, hintWord) {
     element.appendChild(hintElement);
     
     wordSimilarities.set(element, hintWord);
+    saveGameState(); 
 }
 
 function adjustMaskSize(element, hintWord) {
@@ -589,7 +774,7 @@ function closeHintPopup() {
     }, 300);
 }
 
-function showHint(hintType) {
+function showHint(hintType, saveState = true) {
     if (!currentPost) return;
     
     const hintButtonContainer = document.querySelector(`.hint-button-${hintType}`);
@@ -615,4 +800,110 @@ function showHint(hintType) {
     if (!flipCard.classList.contains('flipped')) {
         flipCard.classList.add('flipped');
     }
+    
+    usedHints.add(hintType);
+    
+    if (saveState) {
+        saveGameState(); 
+    }
+}
+
+(function checkDevvitAPI() {
+    
+    window.addEventListener('message', function devvitMessageListener(event) {
+        if (event.data && event.data.type === 'devvitAPIReady') {
+            initializeDevvitAPI(event.data.channel || null);
+        }
+    });
+    
+    function initializeDevvitAPI(channel) {
+        window.devvitAPI = {
+            sendMessage: function(message) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const requestId = Math.random().toString(36).substring(2, 15);
+                        
+                        const responseTimeout = setTimeout(() => {
+                            delete window.devvitCallbacks[requestId];
+                            reject(new Error("DevvitAPI request timed out"));
+                        }, 5000);
+                        
+                        if (!window.devvitCallbacks) window.devvitCallbacks = {};
+                        window.devvitCallbacks[requestId] = {
+                            resolve: (data) => {
+                                clearTimeout(responseTimeout);
+                                resolve(data);
+                            },
+                            reject: (err) => {
+                                clearTimeout(responseTimeout);
+                                reject(err);
+                            }
+                        };
+                        
+                        window.parent.postMessage({
+                            type: 'devvitMessage',
+                            requestId: requestId,
+                            message: message
+                        }, '*');
+                        
+                    } catch (err) {
+                        console.error("Failed to send message:", err);
+                        reject(err);
+                    }
+                });
+            }
+        };
+        
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.requestId && window.devvitCallbacks && window.devvitCallbacks[event.data.requestId]) {
+                const callback = window.devvitCallbacks[event.data.requestId];
+                delete window.devvitCallbacks[event.data.requestId];
+                
+                if (event.data.error) {
+                    callback.reject(event.data.error);
+                } else {
+                    callback.resolve(event.data.result);
+                }
+            }
+        });
+        
+        
+        userId = getUserId();
+        if (currentPost) {
+            loadGameState();
+        } else {
+        }
+    }
+    
+    if (window.parent && window.parent !== window) {
+        try {
+            window.parent.postMessage({ type: 'devvitInit' }, '*');
+            
+            setTimeout(() => {
+                if (!window.devvitAPI) {
+                    initializeDevvitAPI();
+                }
+            }, 1000);
+        } catch (error) {
+            console.error("Failed to initialize devvitAPI:", error);
+        }
+    } else {
+    }
+})();
+
+
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        saveGameState();
+    } else if (document.visibilityState === 'visible') {
+        loadGameState();
+    }
+});
+
+function initializeAutoSave() {
+    setInterval(() => {
+        if (userId && gameId) {
+            saveGameState();
+        }
+    }, 10000);
 }
