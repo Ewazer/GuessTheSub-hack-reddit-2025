@@ -96,7 +96,7 @@ Devvit.addCustomPostType({
                 weight="bold"
                 color="white"
               >
-                GuessTheSubreddit
+                GuessTheSub
               </text>
               <image
                 url="GuessTheSubreddit.png"
@@ -108,7 +108,7 @@ Devvit.addCustomPostType({
             </hstack>
 
             <text color="white" style="body" wrap>
-              Guess the subreddit !!!
+              Guess the sub !!!
             </text>
 
             <vstack gap="medium" padding="medium" alignment="center middle">
