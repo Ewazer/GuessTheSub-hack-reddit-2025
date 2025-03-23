@@ -4,28 +4,76 @@ import { Devvit, useWebView } from '@devvit/public-api';
 
 Devvit.configure({
   redis: true,
-  redditAPI: true, 
+  redditAPI: true,
 });
 
 Devvit.addCustomPostType({
   name: 'GuessTheSubreddit',
   description: 'Interactive game home screen',
   height: 'regular',
-  render: () => {
+  render: (context) => {
+    const redis = context.redis;
+
     const { mount: mountGame } = useWebView({
       url: 'game1.html',
-      onMessage: (message) => {
-        console.log("Message reçu du WebView (Game) :", message);
+      onMessage: async (message) => {
+        try {
+          if (message.type === 'loadGameState') {
+            const { userId, gameId, _requestId } = message;
+            if (userId && gameId) {
+              const isDev = process.env.NODE_ENV === 'development';
+              if (isDev) {
+                return { _requestId, success: true, dev: true };
+              }
+
+              try {
+                const key = `game:${gameId}:user:${userId}`;
+                const savedState = await redis.get(key);
+                return { 
+                  _requestId, 
+                  state: savedState ? JSON.parse(savedState) : null,
+                  success: true 
+                };
+              } catch (error) {
+                return { _requestId, error: error.message, success: false };
+              }
+            }
+          } else if (message.type === 'saveGameState') {
+            const { userId, gameId, state, _requestId } = message;
+            if (userId && gameId && state) {
+              const isDev = process.env.NODE_ENV === 'development';
+              if (isDev) {
+                return { _requestId, success: true, dev: true };
+              }
+
+              try {
+                const key = `game:${gameId}:user:${userId}`;
+                await redis.set(key, JSON.stringify(state));
+                return { _requestId, success: true };
+              } catch (error) {
+                return { _requestId, error: error.message, success: false };
+              }
+            }
+          }
+          
+          return message._requestId ? 
+            { _requestId, success: false, error: "Unhandled message type" } : 
+            null;
+        } catch (error) {
+          return message._requestId ? 
+            { _requestId, success: false, error: error.message } : 
+            null;
+        }
       },
     });
 
     const { mount: mountRules } = useWebView({
       url: 'rule.html',
       onMessage: (message) => {
-        console.log("Message reçu du WebView (Rules) :", message);
+        console.log("Message from Rules WebView:", message);
       },
     });
-
+    
     return (
       <blocks>
         <zstack
