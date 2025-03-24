@@ -1,31 +1,20 @@
-# hack-reddit-2025
+# 🕵️‍♂️ GuessTheSub
 
-## Quickstart
+## 📜 Rules
 
-### Requirement:
-- Node.js
+### 🎯 **Objective:**
+Guess the correct subreddit from a post, with its content initially hidden and gradually revealed.
 
-### Install Devvit
-```sh
-npm install -g devvit
-```
+---
 
-### Log in to Reddit
-```sh
-devvit login
-```
+### 🔍 **How it works:**
 
-### Create a new project
-```sh
-devvit new --template blocks-post
-cd my-project
-```
+- Type a word  
+- If the word is in the post, it gets revealed  
+- The typed word also highlights all semantically similar words in orange  
 
-### Deploy and test
-```sh
-devvit deploy
-devvit upload
-devvit playtest r/testdev_ewazer
-```
+---
 
-🔹 **Note**: The test subreddit is **r/testdev_ewazer**.
+### 🏆 **Win:**
+
+- You win if you type the name of the post's subreddit or a closely related subreddit!
