@@ -1,13 +1,13 @@
 # 🕵️‍♂️ GuessTheSub
 
-## 📜 Rules
+## Rules
 
-### 🎯 **Objective:**
+### **Objective:**
 Guess the correct subreddit from a post, with its content initially hidden and gradually revealed.
 
 ---
 
-### 🔍 **How it works:**
+### **How it works:**
 
 - Type a word  
 - If the word is in the post, it gets revealed  
@@ -15,6 +15,6 @@ Guess the correct subreddit from a post, with its content initially hidden and g
 
 ---
 
-### 🏆 **Win:**
+### **Win:**
 
 - You win if you type the name of the post's subreddit or a closely related subreddit!
